@@ -1,5 +1,7 @@
 package schemas
 
+import "freight-cote-api/schemas/request"
+
 type Address struct {
 	ZipCode string `validate:"required" form:"zipcode" json:"zipcode"`
 }
@@ -22,4 +24,48 @@ type Volume struct {
 type QuoteInputDTO struct {
 	Recipient Recipient `validate:"required" form:"recipient" json:"recipient"`
 	Volumes   []Volume  `validate:"required" form:"volumes" json:"volumes"`
+}
+
+func (qdto *QuoteInputDTO) SeriealizeInput() request.Request {
+	req := new(request.Request)
+
+	shiper := request.Shipper{
+		RegisteredNumber: "25438296000158",
+		Token:            "1d52a9b6b78cf07b08586152459a5c90",
+		PlatformCode:     "5AKVkHqCn",
+	}
+	req.Shipper = shiper
+
+	recipient := request.Recipient{
+		Type:    1,
+		Country: "BRA",
+		Zipcode: 1311000,
+	}
+	req.Recipient = recipient
+
+	var volumesToRequest []request.Volume
+
+	for _, volume := range qdto.Volumes {
+		volumeAux := request.Volume{
+			Category:      volume.Category,
+			Amount:        volume.Amount,
+			UnitaryWeight: volume.UnitaryWeight,
+			UnitaryPrice:  volume.Price,
+			SKU:           volume.Sku,
+			Height:        volume.Height,
+			Width:         volume.Width,
+			Length:        volume.Length,
+		}
+
+		volumesToRequest = append(volumesToRequest, volumeAux)
+	}
+
+	dispatchers := []request.Dispatcher{
+		{RegisteredNumber: "25438296000158", Zipcode: 29161376, Volumes: volumesToRequest},
+	}
+	req.Dispatchers = dispatchers
+
+	req.SimulationType = []int64{0}
+
+	return *req
 }
