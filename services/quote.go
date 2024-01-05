@@ -3,14 +3,16 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"freight-cote-api/schemas"
-	"freight-cote-api/schemas/responses"
+	"freight-cote-api/repositories"
+	"freight-cote-api/schemas/input"
+	r "freight-cote-api/schemas/response"
 	"log"
 	"net/http"
 )
 
 type QuoteService struct {
 	requestsServices RequestsServices
+	quoteRepository  repositories.QuoteRepository
 }
 
 func NewQuoteService() *QuoteService {
@@ -18,11 +20,12 @@ func NewQuoteService() *QuoteService {
 		requestsServices: *NewRequestsService(
 			"https://sp.freterapido.com/api/v3/quote/simulate",
 		),
+		quoteRepository: *repositories.NewQuoteRepository(),
 	}
 }
 
-func (q *QuoteService) QuoteFreightV3(quoteInputDTO schemas.QuoteInputDTO) (*responses.FreteRapidoResponse, error) {
-	var response responses.FreteRapidoResponse
+func (q *QuoteService) Create(quoteInputDTO input.Quote) (*r.QuoteResponse, error) {
+	var response r.FreteRapidoResponseDTO
 
 	quoteToRequest := quoteInputDTO.SeriealizeInput()
 
@@ -39,6 +42,13 @@ func (q *QuoteService) QuoteFreightV3(quoteInputDTO schemas.QuoteInputDTO) (*res
 	}
 
 	_ = json.Unmarshal(result, &response)
+	seriealizedQuote := response.SeriealizeQuoteResponse()
 
-	return &response, nil
+	// TODO: insert response to database
+	err = q.quoteRepository.Create(*seriealizedQuote)
+	if err != nil {
+		return nil, err
+	}
+
+	return seriealizedQuote, nil
 }

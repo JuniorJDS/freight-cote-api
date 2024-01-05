@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"freight-cote-api/schemas/responses"
+	r "freight-cote-api/schemas/response"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,5 +17,5 @@ func NewErrorsHandler() *ErrorsHandler {
 
 func (e ErrorsHandler) InvalidBody(c *fiber.Ctx, err error) error {
 	return c.Status(http.StatusBadRequest).
-		JSON(responses.InfoResponse{Message: err.Error()})
+		JSON(r.InfoResponse{Message: err.Error()})
 }

@@ -1,4 +1,4 @@
-package schemas
+package input
 
 import "freight-cote-api/schemas/request"
 
@@ -21,12 +21,12 @@ type Volume struct {
 	Length        float64 `validate:"required" form:"length" json:"length"`
 }
 
-type QuoteInputDTO struct {
+type Quote struct {
 	Recipient Recipient `validate:"required" form:"recipient" json:"recipient"`
 	Volumes   []Volume  `validate:"required" form:"volumes" json:"volumes"`
 }
 
-func (qdto *QuoteInputDTO) SeriealizeInput() request.Request {
+func (qdto *Quote) SeriealizeInput() request.Request {
 	req := new(request.Request)
 
 	shiper := request.Shipper{

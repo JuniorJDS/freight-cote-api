@@ -1,5 +1,7 @@
 package configs
 
+import "os"
+
 func GetSettings() map[string]string {
 	// Global Settings
 
@@ -14,8 +16,8 @@ func GetSettings() map[string]string {
 	settings["PORT"] = "5000"
 
 	// Mongo Settings
-	// settings["MONGO_URI"] = os.Getenv("MONGO_URI")
-	// settings["MONGO_DATABASE"] = os.Getenv("MONGO_DATABASE")
+	settings["MONGO_URI"] = os.Getenv("MONGO_URI")
+	settings["MONGO_DATABASE"] = os.Getenv("MONGO_DATABASE")
 
 	// settings["HOST"] = os.Getenv("HOST")
 

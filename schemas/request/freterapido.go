@@ -7,8 +7,6 @@ type Request struct {
 	SimulationType []int64      `json:"simulation_type"`
 }
 
-// TODO: create function to manipulate the data to save in mongoDB
-
 type Shipper struct {
 	RegisteredNumber string `json:"registered_number"`
 	Token            string `json:"token"`

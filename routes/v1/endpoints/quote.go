@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"freight-cote-api/schemas"
+	"freight-cote-api/schemas/input"
 	"freight-cote-api/services"
 	"freight-cote-api/utils"
 	"net/http"
@@ -25,18 +25,19 @@ func NewQuote() *Quote {
 }
 
 func (q *Quote) Create(c *fiber.Ctx) error {
-	quoteInputDTO := new(schemas.QuoteInputDTO)
-	err := c.BodyParser(quoteInputDTO)
+	quoteInput := new(input.Quote)
+	err := c.BodyParser(quoteInput)
 	if err != nil {
 		return q.errorsHandler.InvalidBody(c, err)
 	}
 
-	err = q.validator.Struct(quoteInputDTO)
+	err = q.validator.Struct(quoteInput)
 	if err != nil {
 		return q.errorsHandler.InvalidBody(c, err)
 	}
 
-	response, _ := q.quoteService.QuoteFreightV3(*quoteInputDTO)
+	// TODO: handler error
+	response, _ := q.quoteService.Create(*quoteInput)
 	return c.Status(http.StatusOK).JSON(response)
 }
 
