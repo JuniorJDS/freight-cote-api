@@ -36,11 +36,18 @@ func (q *Quote) Create(c *fiber.Ctx) error {
 		return q.errorsHandler.InvalidBody(c, err)
 	}
 
-	// TODO: handler error
-	response, _ := q.quoteService.Create(*quoteInput)
+	response, err := q.quoteService.Create(*quoteInput)
+	if err != nil {
+		return nil
+	}
 	return c.Status(http.StatusOK).JSON(response)
 }
 
 func (q *Quote) Metrics(c *fiber.Ctx) error {
-	return c.SendString("metricas")
+	lastQuotes := c.QueryInt("last_quotes", -1)
+	result, err := q.quoteService.GetMetrics(int64(lastQuotes))
+	if err != nil {
+		return nil
+	}
+	return c.Status(http.StatusOK).JSON(result)
 }
