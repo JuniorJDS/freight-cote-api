@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -25,7 +26,12 @@ func (qr *QuoteRepository) Create(quote r.QuoteResponse) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := qr.quoteCollection.InsertOne(ctx, quote.Carrier[0])
+	var documents []interface{}
+	for _, carrier := range quote.Carrier {
+		documents = append(documents, carrier)
+	}
+
+	_, err := qr.quoteCollection.InsertMany(ctx, documents)
 	if err != nil {
 		log.Printf("Error to insert quote: %s\n", err.Error())
 		return err
@@ -33,116 +39,65 @@ func (qr *QuoteRepository) Create(quote r.QuoteResponse) error {
 	return nil
 }
 
-func (qr *QuoteRepository) Get() {
+func (qr *QuoteRepository) GetMetrics(lastQuote int64) (*r.Metrics, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
+	metrics := r.Metrics{}
+
+	pipeline := []bson.M{
+		{
+			"$sort": bson.M{"_id": -1},
+		},
+	}
+
+	if lastQuote > 0 {
+		limitStage := bson.M{"$limit": lastQuote}
+		pipeline = append(pipeline, limitStage)
+	}
+
+	groupStages := []bson.M{
+		{
+			"$group": bson.M{
+				"_id":           "$name",
+				"count":         bson.M{"$sum": 1},
+				"total":         bson.M{"$sum": "$price"},
+				"avg":           bson.M{"$avg": "$price"},
+				"highest_price": bson.M{"$max": "$price"},
+				"lowest_price":  bson.M{"$min": "$price"},
+			},
+		},
+		{
+			"$group": bson.M{
+				"_id": nil,
+				"by_carriers": bson.M{
+					"$push": bson.M{
+						"name":     "$_id",
+						"quantity": "$count",
+						"total":    "$total",
+						"avg":      "$avg",
+					},
+				},
+				"highest_price": bson.M{"$max": "$highest_price"},
+				"lowest_price":  bson.M{"$min": "$lowest_price"},
+			},
+		},
+	}
+	pipeline = append(pipeline, groupStages...)
+
+	cursor, err := qr.quoteCollection.Aggregate(ctx, pipeline)
+	if err != nil {
+		log.Printf("Error to Aggregate Metrics: %s\n", err.Error())
+		return nil, err
+	}
+
+	for cursor.Next(ctx) {
+		err := cursor.Decode(&metrics)
+		if err != nil {
+			log.Printf("Failed to get metrics in filterCursor: %s\n", err.Error())
+			return nil, err
+		}
+	}
+
+	return &metrics, nil
 }
-
-// import (
-// 	"context"
-// 	"fmt"
-// 	"log"
-// 	"time"
-
-// 	"go.mongodb.org/mongo-driver/bson"
-// 	"go.mongodb.org/mongo-driver/mongo"
-// 	"go.mongodb.org/mongo-driver/mongo/options"
-// )
-
-// type Shipping struct {
-// 	Name     string  `bson:"name"`
-// 	Service  string  `bson:"service"`
-// 	Deadline int     `bson:"deadline"`
-// 	Price    float64 `bson:"price"`
-// }
-
-// func main() {
-// 	// Replace the connection string and collection name with your actual values
-// 	connectionString := "your_connection_string"
-// 	collectionName := "your_collection_name"
-
-// 	// Set up MongoDB client
-// 	client, err := mongo.NewClient(options.Client().ApplyURI(connectionString))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
-// 	err = client.Connect(ctx)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer client.Disconnect(ctx)
-
-// 	// Access the collection
-// 	collection := client.Database("your_database_name").Collection(collectionName)
-
-// 	// Find documents
-// 	findOptions := options.Find()
-// 	cursor, err := collection.Find(ctx, bson.D{}, findOptions)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer cursor.Close(ctx)
-
-// 	// Create a slice to hold the found documents
-// 	var shipments []Shipping
-// 	if err := cursor.All(ctx, &shipments); err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	// Aggregate the results in memory
-// 	aggregatedResult := aggregateShipments(shipments)
-
-// 	fmt.Printf("Aggregated Result: %+v\n", aggregatedResult)
-// }
-
-// func aggregateShipments(shipments []Shipping) map[string]interface{} {
-// 	// Aggregation logic on the in-memory slice
-// 	aggregatedResult := make(map[string]interface{})
-
-// 	// Example: Count occurrences of each shipping name
-// 	nameCounts := make(map[string]int)
-// 	for _, shipment := range shipments {
-// 		nameCounts[shipment.Name]++
-// 	}
-// 	aggregatedResult["nameCounts"] = nameCounts
-
-// 	// Example: Calculate total price and average price per name
-// 	nameTotalPrice := make(map[string]float64)
-// 	nameCount := make(map[string]int)
-// 	for _, shipment := range shipments {
-// 		nameTotalPrice[shipment.Name] += shipment.Price
-// 		nameCount[shipment.Name]++
-// 	}
-// 	aggregatedResult["nameTotalPrice"] = nameTotalPrice
-// 	aggregatedResult["nameAvgPrice"] = calculateAveragePrice(nameTotalPrice, nameCount)
-
-// 	// Example: Find cheapest and most expensive shipping overall
-// 	cheapestShipping, mostExpensiveShipping := findCheapestAndMostExpensive(shipments)
-// 	aggregatedResult["cheapestShipping"] = cheapestShipping
-// 	aggregatedResult["mostExpensiveShipping"] = mostExpensiveShipping
-
-// 	return aggregatedResult
-// }
-
-// func calculateAveragePrice(totalPriceMap map[string]float64, countMap map[string]int) map[string]float64 {
-// 	avgPriceMap := make(map[string]float64)
-// 	for name, totalPrice := range totalPriceMap {
-// 		count := countMap[name]
-// 		avgPriceMap[name] = totalPrice / float64(count)
-// 	}
-// 	return avgPriceMap
-// }
-
-// func findCheapestAndMostExpensive(shipments []Shipping) (Shipping, Shipping) {
-// 	var cheapest, mostExpensive Shipping
-// 	for i, shipment := range shipments {
-// 		if i == 0 || shipment.Price < cheapest.Price {
-// 			cheapest = shipment
-// 		}
-// 		if i == 0 || shipment.Price > mostExpensive.Price {
-// 			mostExpensive = shipment
-// 		}
-// 	}
-// 	return cheapest, mostExpensive
-// }

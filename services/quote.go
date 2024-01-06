@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"freight-cote-api/configs"
 	"freight-cote-api/repositories"
 	"freight-cote-api/schemas/input"
 	r "freight-cote-api/schemas/response"
@@ -16,9 +17,10 @@ type QuoteService struct {
 }
 
 func NewQuoteService() *QuoteService {
+	baseURL := configs.GetSettings()["FRETERAPIDO_API_URL"]
 	return &QuoteService{
 		requestsServices: *NewRequestsService(
-			"https://sp.freterapido.com/api/v3/quote/simulate",
+			baseURL,
 		),
 		quoteRepository: *repositories.NewQuoteRepository(),
 	}
@@ -44,11 +46,18 @@ func (q *QuoteService) Create(quoteInputDTO input.Quote) (*r.QuoteResponse, erro
 	_ = json.Unmarshal(result, &response)
 	seriealizedQuote := response.SeriealizeQuoteResponse()
 
-	// TODO: insert response to database
 	err = q.quoteRepository.Create(*seriealizedQuote)
 	if err != nil {
 		return nil, err
 	}
 
 	return seriealizedQuote, nil
+}
+
+func (q *QuoteService) GetMetrics(lastQuote int64) (*r.Metrics, error) {
+	metrics, err := q.quoteRepository.GetMetrics(lastQuote)
+	if err != nil {
+		return nil, err
+	}
+	return metrics, nil
 }
