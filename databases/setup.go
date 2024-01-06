@@ -2,6 +2,7 @@ package databases
 
 import (
 	"context"
+	"freight-cote-api/configs"
 	"log"
 	"time"
 
@@ -15,28 +16,15 @@ func ConnectDB() *mongo.Database {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	mongoURI := "4hub-sop"                                                                                              // configs.GetSettings()["MONGO_URI"]
-	mongoDatabase := "mongodb://mongoadmin:secret@localhost:27017/sop-mongo?authSource=admin&authMechanism=SCRAM-SHA-1" // configs.GetSettings()["MONGO_DATABASE"]
-	// connectionString := "mongodb://mongoadmin:secret@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-1"
+	mongoURI := configs.GetSettings()["MONGO_URI"]
+	mongoDatabase := configs.GetSettings()["MONGO_DATABASE"]
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoDatabase))
-	// client, err := mongo.NewClient(options.Client().ApplyURI(mongoDatabase))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Printf("Error to connect to MongoDB: %s\n", err.Error())
 	}
 
-	// defer func() {
-	// 	if err := client.Disconnect(ctx); err != nil {
-	// 		log.Printf("Disconnecting MongoDB: %s\n", err.Error())
-	// 	}
-	// }()
-
-	// err = client.Connect(ctx)
-	// if err != nil {
-	// 	log.Printf("Error to connect to MongoDB: %s\n", err.Error())
-	// }
-
-	database := client.Database(mongoURI)
+	database := client.Database(mongoDatabase)
 	return database
 }
 

@@ -1,6 +1,10 @@
 package input
 
-import "freight-cote-api/schemas/request"
+import (
+	"freight-cote-api/configs"
+	"freight-cote-api/schemas/request"
+	"strconv"
+)
 
 type Address struct {
 	ZipCode string `validate:"required" form:"zipcode" json:"zipcode"`
@@ -29,17 +33,27 @@ type Quote struct {
 func (qdto *Quote) SeriealizeInput() request.Request {
 	req := new(request.Request)
 
+	registeredNumber := configs.GetSettings()["REGISTEREDNUMBER"]
+	token := configs.GetSettings()["TOKEN"]
+	platformCode := configs.GetSettings()["PLATFORMCODE"]
+
+	dispatchersZipCodeString := configs.GetSettings()["DISPATCHERSZIPCODE"]
+	dispatchersZipCode, _ := strconv.ParseInt(dispatchersZipCodeString, 10, 64)
+
+	recipientAddressZipCodeString := qdto.Recipient.Address.ZipCode
+	recipientAddressZipCode, _ := strconv.ParseInt(recipientAddressZipCodeString, 10, 64)
+
 	shiper := request.Shipper{
-		RegisteredNumber: "25438296000158",
-		Token:            "1d52a9b6b78cf07b08586152459a5c90",
-		PlatformCode:     "5AKVkHqCn",
+		RegisteredNumber: registeredNumber,
+		Token:            token,
+		PlatformCode:     platformCode,
 	}
 	req.Shipper = shiper
 
 	recipient := request.Recipient{
 		Type:    1,
 		Country: "BRA",
-		Zipcode: 1311000,
+		Zipcode: recipientAddressZipCode,
 	}
 	req.Recipient = recipient
 
@@ -61,7 +75,7 @@ func (qdto *Quote) SeriealizeInput() request.Request {
 	}
 
 	dispatchers := []request.Dispatcher{
-		{RegisteredNumber: "25438296000158", Zipcode: 29161376, Volumes: volumesToRequest},
+		{RegisteredNumber: registeredNumber, Zipcode: dispatchersZipCode, Volumes: volumesToRequest},
 	}
 	req.Dispatchers = dispatchers
 

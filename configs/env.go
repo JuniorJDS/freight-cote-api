@@ -1,14 +1,19 @@
 package configs
 
-import "os"
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 func GetSettings() map[string]string {
 	// Global Settings
 
-	// err := godotenv.Load()
-	// if err != nil {
-	//	log.Fatal("Error loading .env file: ", err.Error())
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err.Error())
+	}
 
 	settings := make(map[string]string)
 
@@ -18,6 +23,12 @@ func GetSettings() map[string]string {
 	// Mongo Settings
 	settings["MONGO_URI"] = os.Getenv("MONGO_URI")
 	settings["MONGO_DATABASE"] = os.Getenv("MONGO_DATABASE")
+
+	settings["FRETERAPIDO_API_URL"] = os.Getenv("FRETERAPIDO_API_URL")
+	settings["TOKEN"] = os.Getenv("TOKEN")
+	settings["PLATFORMCODE"] = os.Getenv("PLATFORMCODE")
+	settings["DISPATCHERSZIPCODE"] = os.Getenv("DISPATCHERSZIPCODE")
+	settings["REGISTEREDNUMBER"] = os.Getenv("REGISTEREDNUMBER")
 
 	// settings["HOST"] = os.Getenv("HOST")
 
