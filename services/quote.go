@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"freight-cote-api/configs"
 	"freight-cote-api/repositories"
 	"freight-cote-api/schemas/input"
@@ -33,23 +32,28 @@ func (q *QuoteService) Create(quoteInputDTO input.Quote) (*r.QuoteResponse, erro
 
 	quoteInputBytes, err := json.Marshal(quoteToRequest)
 	if err != nil {
-		fmt.Println("Error encoding JSON:", err)
+		log.Printf("Error encoding JSON: %s\n", err.Error())
 		return nil, err
 	}
 
 	result, err := q.requestsServices.SendRequest(http.MethodPost, quoteInputBytes)
 	if err != nil {
-		log.Printf("Failed to get fs data: %s\n", err.Error())
+		log.Printf("Failed to request external API: %s\n", err.Error())
 		return nil, err
 	}
 
-	_ = json.Unmarshal(result, &response)
+	err = json.Unmarshal(result, &response)
+	if err != nil {
+		log.Printf("Error to unmarshal into a response format: %s\n", err.Error())
+		return nil, err
+	}
+
 	seriealizedQuote := response.SeriealizeQuoteResponse()
 	if len(seriealizedQuote.Carrier) == 0 {
 		return seriealizedQuote, nil
 	}
 
-	err = q.quoteRepository.Create(*seriealizedQuote)
+	err = q.quoteRepository.Insert(*seriealizedQuote)
 	if err != nil {
 		return nil, err
 	}

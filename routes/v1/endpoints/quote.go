@@ -38,7 +38,7 @@ func (q *Quote) Create(c *fiber.Ctx) error {
 
 	response, err := q.quoteService.Create(*quoteInput)
 	if err != nil {
-		return nil
+		return q.errorsHandler.InternalServerError(c, err)
 	}
 	return c.Status(http.StatusOK).JSON(response)
 }
@@ -47,7 +47,7 @@ func (q *Quote) Metrics(c *fiber.Ctx) error {
 	lastQuotes := c.QueryInt("last_quotes", -1)
 	result, err := q.quoteService.GetMetrics(int64(lastQuotes))
 	if err != nil {
-		return nil
+		return q.errorsHandler.InternalServerError(c, err)
 	}
 	return c.Status(http.StatusOK).JSON(result)
 }

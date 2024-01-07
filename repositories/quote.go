@@ -22,7 +22,7 @@ func NewQuoteRepository() *QuoteRepository {
 	return repository
 }
 
-func (qr *QuoteRepository) Create(quote r.QuoteResponse) error {
+func (qr *QuoteRepository) Insert(quote r.QuoteResponse) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

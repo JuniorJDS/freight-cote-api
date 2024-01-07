@@ -19,3 +19,8 @@ func (e ErrorsHandler) InvalidBody(c *fiber.Ctx, err error) error {
 	return c.Status(http.StatusBadRequest).
 		JSON(r.InfoResponse{Message: err.Error()})
 }
+
+func (e ErrorsHandler) InternalServerError(c *fiber.Ctx, err error) error {
+	return c.Status(http.StatusInternalServerError).
+		JSON(r.InfoResponse{Message: err.Error()})
+}
