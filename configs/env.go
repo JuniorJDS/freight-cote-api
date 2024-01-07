@@ -9,8 +9,6 @@ import (
 )
 
 func GetSettings() map[string]string {
-	// Global Settings
-
 	ignoreEnviroment, err := strconv.ParseBool(os.Getenv("IGNORE_ENVIRONMENT"))
 	if !ignoreEnviroment {
 		err = godotenv.Load()
@@ -29,13 +27,12 @@ func GetSettings() map[string]string {
 	settings["MONGO_URI"] = os.Getenv("MONGO_URI")
 	settings["MONGO_DATABASE"] = os.Getenv("MONGO_DATABASE")
 
+	// External API Settings
 	settings["FRETERAPIDO_API_URL"] = os.Getenv("FRETERAPIDO_API_URL")
 	settings["TOKEN"] = os.Getenv("TOKEN")
 	settings["PLATFORMCODE"] = os.Getenv("PLATFORMCODE")
 	settings["DISPATCHERSZIPCODE"] = os.Getenv("DISPATCHERSZIPCODE")
 	settings["REGISTEREDNUMBER"] = os.Getenv("REGISTEREDNUMBER")
-
-	// settings["HOST"] = os.Getenv("HOST")
 
 	return settings
 }

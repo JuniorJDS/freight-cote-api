@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -69,4 +70,38 @@ func (b *BaseTest) TearDownTest() {
 			fmt.Println("Error to delete collection ", collectionName, " indexes: ", err.Error())
 		}
 	}
+}
+
+func (b *BaseTest) readDataFromJSON(dataFilepath string) []interface{} {
+	byteValues, err := os.ReadFile(dataFilepath)
+	if err != nil {
+		fmt.Println("Error to read file: ", err.Error())
+	}
+
+	var docs []interface{}
+	_ = json.Unmarshal(byteValues, &docs)
+
+	return docs
+}
+
+func (b *BaseTest) populateCollectionDatabase(collectionName string, dataFilepath string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	collection := b.database.Collection(collectionName)
+
+	docs := b.readDataFromJSON(dataFilepath)
+
+	for i := range docs {
+		doc := docs[i]
+
+		_, err := collection.InsertOne(ctx, doc)
+		if err != nil {
+			fmt.Println("Error to insert document: ", err.Error())
+			return err
+		}
+
+		time.Sleep(1 * time.Millisecond)
+	}
+	return nil
 }

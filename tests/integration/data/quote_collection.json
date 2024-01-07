@@ -1,0 +1,50 @@
+[
+  {
+    "name": "JADLOG",
+    "service": ".PACKAGE",
+    "deadline": 13,
+    "price": 20
+  },
+  {
+    "name": "CORREIOS",
+    "service": "PAC",
+    "deadline": 15,
+    "price": 20
+  },
+  {
+    "name": "CORREIOS",
+    "service": "SEDEX",
+    "deadline": 11,
+    "price": 30
+  },
+  {
+    "name": "BTU BRASPRESS",
+    "service": "Normal",
+    "deadline": 15,
+    "price": 90
+  },
+  {
+    "name": "CORREIOS",
+    "service": "PAC",
+    "deadline": 15,
+    "price": 40
+  },
+  {
+    "name": "CORREIOS",
+    "service": "SEDEX",
+    "deadline": 11,
+    "price": 200
+  },
+  {
+    "name": "PRESSA FR (TESTE)",
+    "service": "Normal",
+    "deadline": 11,
+    "price": 1000
+  },
+  {
+    "name": "PRESSA FR (TESTE)",
+    "service": "Normal",
+    "deadline": 11,
+    "price": 3000
+  }
+]
