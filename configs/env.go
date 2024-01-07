@@ -3,6 +3,7 @@ package configs
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -10,7 +11,11 @@ import (
 func GetSettings() map[string]string {
 	// Global Settings
 
-	err := godotenv.Load()
+	ignoreEnviroment, err := strconv.ParseBool(os.Getenv("IGNORE_ENVIRONMENT"))
+	if !ignoreEnviroment {
+		err = godotenv.Load()
+	}
+
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err.Error())
 	}

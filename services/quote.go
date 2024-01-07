@@ -45,6 +45,9 @@ func (q *QuoteService) Create(quoteInputDTO input.Quote) (*r.QuoteResponse, erro
 
 	_ = json.Unmarshal(result, &response)
 	seriealizedQuote := response.SeriealizeQuoteResponse()
+	if len(seriealizedQuote.Carrier) == 0 {
+		return seriealizedQuote, nil
+	}
 
 	err = q.quoteRepository.Create(*seriealizedQuote)
 	if err != nil {

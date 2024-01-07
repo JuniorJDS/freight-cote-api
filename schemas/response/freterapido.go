@@ -26,7 +26,8 @@ type FreteRapidoResponseDTO struct {
 }
 
 func (fr *FreteRapidoResponseDTO) SeriealizeQuoteResponse() *QuoteResponse {
-	var carrier []Carrier
+	// var carrier []Carrier
+	carrier := []Carrier{}
 
 	for _, dispatcher := range fr.Dispatchers {
 		for _, offer := range dispatcher.Offers {
