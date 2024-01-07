@@ -92,10 +92,14 @@ func (b *BaseTest) populateCollectionDatabase(collectionName string, dataFilepat
 
 	docs := b.readDataFromJSON(dataFilepath)
 
-	_, err := collection.InsertMany(ctx, docs)
-	if err != nil {
-		fmt.Println("Error to insert document: ", err.Error())
-		return err
+	for i := range docs {
+		doc := docs[i]
+
+		_, err := collection.InsertOne(ctx, doc)
+		if err != nil {
+			fmt.Println("Error to insert document: ", err.Error())
+			return err
+		}
 	}
 	return nil
 }

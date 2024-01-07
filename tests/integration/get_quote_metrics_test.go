@@ -38,7 +38,6 @@ func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollection__ExpectedSuccess
 		LowestPrice:  20,
 	}
 	assert.EqualValues(t, expectedData, respData)
-
 }
 
 func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollectionWithLastQuotesQueryParameter__ExpectedSuccess(t *testing.T) {
@@ -67,7 +66,6 @@ func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollectionWithLastQuotesQue
 		LowestPrice:  1000,
 	}
 	assert.EqualValues(t, expectedData, respData)
-
 }
 
 func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollectionWithoutData__ExpectedSuccessAndEmptyMetrics(t *testing.T) {
@@ -91,5 +89,4 @@ func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollectionWithoutData__Expe
 		LowestPrice:  0,
 	}
 	assert.EqualValues(t, expectedData, respData)
-
 }
