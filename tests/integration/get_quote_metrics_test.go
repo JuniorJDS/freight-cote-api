@@ -37,7 +37,9 @@ func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollection__ExpectedSuccess
 		HighestPrice: 3000,
 		LowestPrice:  20,
 	}
-	assert.EqualValues(t, expectedData, respData)
+	assert.ElementsMatch(t, expectedData.ByCarriers, respData.ByCarriers)
+	assert.EqualValues(t, expectedData.HighestPrice, respData.HighestPrice)
+	assert.EqualValues(t, expectedData.LowestPrice, respData.LowestPrice)
 }
 
 func TestGetQuoteMetrics__GetMetricsFromDatabaseQuoteCollectionWithLastQuotesQueryParameter__ExpectedSuccess(t *testing.T) {
