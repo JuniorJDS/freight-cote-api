@@ -100,6 +100,8 @@ func (b *BaseTest) populateCollectionDatabase(collectionName string, dataFilepat
 			fmt.Println("Error to insert document: ", err.Error())
 			return err
 		}
+
+		time.Sleep(1 * time.Millisecond)
 	}
 	return nil
 }
