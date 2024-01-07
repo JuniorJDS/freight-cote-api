@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+
+  mongo-db:
+    image: mongo:5.0.14
+    container_name: sop-mongo
+    ports:
+      - "27017:27017"
+    logging:
+      driver: none
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret

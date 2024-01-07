@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  mongo-db:
+    image: mongo:5.0.14
+    container_name: sop-mongo
+    ports:
+      - "27017:27017"
+    logging:
+      driver: none
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+
+  app-test:
+    build:
+      context: ./
+      dockerfile: tests.Dockerfile
+    container_name: fs-tests
+    environment:
+      - IGNORE_ENVIRONMENT=1
+      - MONGO_DATABASE=test-mongo
+      - MONGO_URI=mongodb://mongoadmin:secret@sop-mongo:27017/{MONGO_DATABASE}?authSource=admin&authMechanism=SCRAM-SHA-1
+      - FRETERAPIDO_API_URL=https://test-frete-api/api/v3/quote/simulate
+      - TOKEN=123456789101112
+      - PLATFORMCODE=4ACVFDSAS
+      - DISPATCHERSZIPCODE=22111000
+      - REGISTEREDNUMBER=25438296000158
+    depends_on:
+      - mongo-db
+    command:
+      [
+        "./scripts/wait-for-it.sh",
+        "sop-mongo:27017",
+        "--",
+        "go", "test", "./tests/integration/", "-v"
+      ]
