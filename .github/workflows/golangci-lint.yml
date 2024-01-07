@@ -1,0 +1,24 @@
+name: Go Linter
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+      - "release-**"
+
+permissions:
+  contents: read
+
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
+          args: --enable whitespace,stylecheck --timeout 3m
