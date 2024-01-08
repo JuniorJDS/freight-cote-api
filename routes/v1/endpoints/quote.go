@@ -24,6 +24,17 @@ func NewQuote() *Quote {
 	}
 }
 
+// Create godoc
+// @Summary 	Create quote
+// @Description Route to receive input data and generate a fictional quote using the Fast Freight API.
+// @Tags 		Quote
+// @Accept      application/json
+// @Produce 	application/json
+// @Param 		quote body 	   input.Quote  true "Quote Datas"
+// @Success 	200   {object} response.QuoteResponse
+// @Failure 	400   {object} response.InfoResponse
+// @Failure 	500   {object} response.InfoResponse
+// @Router 		/indicators [post]
 func (q *Quote) Create(c *fiber.Ctx) error {
 	quoteInput := new(input.Quote)
 	err := c.BodyParser(quoteInput)
@@ -43,6 +54,15 @@ func (q *Quote) Create(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(response)
 }
 
+// Metrics godoc
+// @Summary 	Get Metrics
+// @Description Gets all available metrics.
+// @Tags 		Quote
+// @Produce 	application/json
+// @Param 		last_quotes   		   query    int   				       false "quantidade de cotações (ordem decrescente)"
+// @Success 	200   {object} response.Metrics
+// @Failure 	500   {object} response.InfoResponse
+// @Router 		/quote/metrics [get]
 func (q *Quote) Metrics(c *fiber.Ctx) error {
 	lastQuotes := c.QueryInt("last_quotes", -1)
 	result, err := q.quoteService.GetMetrics(int64(lastQuotes))

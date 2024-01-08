@@ -7,6 +7,10 @@ import (
 
 var settings = configs.GetSettings()
 
+// @title freight cote - API
+// @version 1.0.0
+// @description API for freight cote operations
+// @BasePath /api/v1
 func main() {
 	app := api.MakeApp()
 
