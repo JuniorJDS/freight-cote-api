@@ -1,0 +1,160 @@
+basePath: /api/v1
+definitions:
+  input.Address:
+    properties:
+      zipcode:
+        type: string
+    required:
+    - zipcode
+    type: object
+  input.Quote:
+    properties:
+      recipient:
+        $ref: '#/definitions/input.Recipient'
+      volumes:
+        items:
+          $ref: '#/definitions/input.Volume'
+        type: array
+    required:
+    - recipient
+    - volumes
+    type: object
+  input.Recipient:
+    properties:
+      address:
+        $ref: '#/definitions/input.Address'
+    required:
+    - address
+    type: object
+  input.Volume:
+    properties:
+      amount:
+        type: integer
+      category:
+        type: string
+      height:
+        type: number
+      length:
+        type: number
+      price:
+        type: number
+      sku:
+        type: string
+      unitary_weight:
+        type: number
+      width:
+        type: number
+    required:
+    - amount
+    - category
+    - height
+    - length
+    - price
+    - unitary_weight
+    - width
+    type: object
+  response.Carrier:
+    properties:
+      deadline:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      service:
+        type: string
+    type: object
+  response.InfoResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.Metric:
+    properties:
+      avg:
+        type: number
+      name:
+        type: string
+      quantity:
+        type: integer
+      total:
+        type: number
+    type: object
+  response.Metrics:
+    properties:
+      by_carriers:
+        items:
+          $ref: '#/definitions/response.Metric'
+        type: array
+      highest_price:
+        type: number
+      lowest_price:
+        type: number
+    type: object
+  response.QuoteResponse:
+    properties:
+      carrier:
+        items:
+          $ref: '#/definitions/response.Carrier'
+        type: array
+    type: object
+info:
+  contact: {}
+  description: API for freight cote operations
+  title: freight cote - API
+  version: 1.0.0
+paths:
+  /indicators:
+    post:
+      consumes:
+      - application/json
+      description: Route to receive input data and generate a fictional quote using
+        the Fast Freight API.
+      parameters:
+      - description: Quote Datas
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/input.Quote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.QuoteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+      summary: Create quote
+      tags:
+      - Quote
+  /quote/metrics:
+    get:
+      description: Gets all available metrics.
+      parameters:
+      - description: quantidade de cotações (ordem decrescente)
+        in: query
+        name: last_quotes
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Metrics'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InfoResponse'
+      summary: Get Metrics
+      tags:
+      - Quote
+swagger: "2.0"
